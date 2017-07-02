@@ -1,0 +1,146 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../css/style-module.html">
+<link rel="import" href="../elements/import.html">
+
+<dom-module id="product-cards">
+  <template>
+    <style include="style-module">
+      :host * {
+          box-sizing: border-box;
+      }
+
+      .product-card {
+          height: 110px;
+          background-color: #eee;
+          border: 1px solid rgba(0,0,0, 0.1);
+          border-bottom: 3px solid rgba(0,0,0, 0.2);
+          border-radius: 5px;
+      }
+
+      .product-card:hover {
+          position: relative;
+          bottom: 2px;
+          border-bottom: 4px solid rgba(0,0,0, 0.3);
+      }
+
+      .product-pic-container {
+          padding: 0;
+      }
+
+      .product-card img {
+          width: 90px;
+          height: 106px;
+          float: left;
+          object-fit: cover;
+          margin-left: 0;
+          border-radius: 5px 0 0 1px;
+      }
+
+      .product-card:hover img {
+          height: 105px;
+      }
+
+      .product-card-header-container {
+          height: 90px;
+          padding-bottom: 0px;
+          line-height: 22px;
+      }
+
+      .product-card-header {
+          border-bottom: 1px solid #ccc;
+          height: 65px;
+      }
+
+      .product-card-header h2 {
+          margin:0;
+      }
+
+      .product-card-header i {
+          float:right;
+          font-size: 20px;
+          color: #E05D6F;
+      }
+
+      .add-to-cart {
+        cursor: pointer;
+        font-size: 14px;
+      }
+    </style>
+
+    <div class="row">
+    <template is="dom-repeat" items="{{filtered(filter, products)}}">
+
+      <div class="product-id" hidden>[[item.id]]</div>
+      <div class="col-2">
+        <div class="product-card">
+          <div class="row">
+            <div class="col-2 product-pic-container">
+              <img src="[[item.image_url]]">
+            </div>
+            <div class="col-4 product-card-header-container">
+              <div class="product-card-header">
+                <h2>[[item.name]]</h2>
+                <p>[[item.price]]</p>
+              </div>
+              <a class="add-to-cart" on-click="addToCart">Adicionar ao carrinho <i class="fa fa-cart-plus"></i></a>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+    </template>
+    </div>
+
+  </template>
+  <script>
+    'use strict';
+
+    class ProductCards extends Polymer.Element {
+      static get is() {
+        return "product-cards";
+      }
+
+      static get properties() {
+        return {
+          products: {
+            type: Array
+          },
+          filter: String
+        }
+      }
+
+      ready() {
+        super.ready();
+        document.addEventListener("did-search", (e) => {
+            this.filter = e.detail.query;
+        });
+      }
+
+      filtered() {
+        if (!this.filter) {
+          return this.products;
+        } else {
+          return this.products.filter((p) => {
+            return p.name.includes(this.filter);
+          })
+        }
+      }
+
+      addToCart(e) {
+        let product = e.model.item;
+        let router = new Router();
+        router.triggerActionForRoute('add-product-to-cart', product, product.id)
+      }
+
+      didSelectPet(e) {
+        location.href= '#pets/' + e.model.item.id;
+      }
+
+      
+    }
+    customElements.define(ProductCards.is, ProductCards);
+  </script>
+</dom-module>
+
+
+          

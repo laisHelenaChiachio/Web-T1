@@ -1,0 +1,72 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../css/style-module.html">
+<link rel="import" href="../elements/import.html">
+
+<dom-module id="cart-table">
+  <template>
+    <style include="style-module">
+      :host * {
+        box-sizing: border-box;
+      }
+    </style>
+    <div class="row">
+      <div class="col-6">
+        <table>
+          <thead>
+            <tr>
+            <th>ID</th>
+            <th>Nome do Produto</th>
+            <th>Valor individual</th>
+            <th>Quantidade</th>
+            <th>Valor total</th>
+            <th>Remover</th>
+            </tr>
+          </thead>
+
+          <tbody>
+          <template is="dom-repeat" items="{{cart.sales}}">
+            <tr>
+            <td>{{item.product.id}}</td>
+            <td>{{item.product.name}}</td>
+            <td>{{item.product.price}}</td>
+            <td>{{item.qty}}</td>
+            <td>{{item.formattedTotalPrice}}</td>
+            <td on-click='didPressRemove'><a class="sales-add-to-cart-link">Remover<i class="fa fa-trash"></i></a></td>
+            </tr>
+          </template>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-6">
+        <h3 class="cart-total align-right">Total: {{cart.formattedTotalPrice}}</h3>
+      </div>
+    </div>
+
+  </template>
+  <script>
+    'use strict';
+
+    class CartTable extends Polymer.Element {
+      static get is() {
+        return "cart-table";
+      }
+
+      static get properties() {
+        return {
+          cart: {
+            type: Object
+          }
+        }
+      }
+
+      didPressRemove(e) {
+        let model = e.model.item;
+        router.triggerActionForRoute('remove-item-from-cart', model, model.id)
+      }
+    }
+    customElements.define(CartTable.is, CartTable);
+  </script>
+</dom-module>

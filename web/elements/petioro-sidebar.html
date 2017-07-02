@@ -1,0 +1,124 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<!-- Import the styles from the style module my-colors -->
+<link rel="import" href="../css/style-module.html">
+
+<dom-module id="side-navbar">
+  <template>
+    <!-- Include the imported styles from my-colors -->
+    <style include="style-module">
+      :host *{
+        box-sizing: border-box;
+      }
+
+      .sidebar {
+        background-color: #C98485;
+        height: 600px;
+        color: #333;
+        border-style: solid;
+        border-width: 1px;
+        border-color: rgba(0,0,0, 0.2);
+        border-bottom-width: 5px;
+        border-radius: 10px;
+      }
+
+      .sidebar .sidebar-item {
+        display: block;
+        padding: 10px;
+        text-decoration: none;
+        width: 100%;
+        border-bottom: 2px solid rgba(0,0,0, 0.1);
+        color: #FFF;
+        height: 50px;
+        line-height: 25px;
+        font-size: 14px;
+      }
+
+      .sidebar .sidebar-item:hover {
+        border-top: 0px solid rgba(0,0,0, 0.1);
+        border-left: 4px solid rgba(0,0,0, 0.2);
+        border-radius: 0 0 0 2px;
+      }
+
+      .sidebar .sidebar-item i {
+        width: 30px;
+        text-align: center;
+      }
+
+      .sidebar .sidebar-item:first-child {
+        margin-top: 40px;
+        border-top: 2px solid rgba(0,0,0, 0.1);
+      }
+
+      .sidebar .sidebar-item.selected {
+        background-color: #B27576;
+        border: none;
+        border-left: 3px solid rgba(0,0,0, 0.2);
+        left: 1px;
+      }
+    </style>
+
+    <template is="dom-if" if="{{_isAdmin()}}">
+      <nav class="sidebar">
+        <a href="#admin/admins" class="sidebar-item"><i class="fa fa-lock"></i> Administradores</a>
+        <a href="#admin/clients" class="sidebar-item"><i class="fa fa-users"></i> Clientes</a>
+        <a href="#admin/products" class="sidebar-item"><i class="fa fa-list"></i> Produtos</a>
+        <a href="#admin/earnings" class="sidebar-item"><i class="fa fa-money"></i> Ganhos</a>
+        <a href="#admin/sales" class="sidebar-item"><i class="fa fa-credit-card"></i> Vendas</a>
+        <a href="#admin/calendar" class="sidebar-item"><i class="fa fa-calendar"></i> Agenda</a>
+      </nav>
+    </template>
+
+    <template is="dom-if" if="{{!_isAdmin()}}">
+      <nav class="sidebar">
+        <a href="#pets" class="sidebar-item"><i class="fa fa-paw"></i>Pets</a>
+        <a href="#calendar" class="sidebar-item"><i class="fa fa-calendar"></i> Agenda</a>
+        <a href="#products" class="sidebar-item"><i class="fa fa-list"></i> Produtos</a>
+      </nav>
+    </template>
+
+  </template>
+  <script>
+    class SideNavbar extends Polymer.Element {
+      static get is() {
+        return "side-navbar";
+      }
+
+      static get properties() {
+        return {
+          username: String,
+          admin: {
+            type: Boolean,
+            value: false
+          },
+          selectedItemMenu: {
+            type: String,
+            notify: true,
+            observer: 'selectedItemDidChange'
+          },
+          "profile-pic": String         
+        }
+      }
+
+      _isAdmin() {
+        return this.admin == true
+      }
+
+      selectedItemDidChange(newValue, oldValue) {   
+        let links = this.shadowRoot.querySelectorAll('a');
+        links = Array.from(links);
+        for (let l of links) { 
+          if (newValue.includes(l.href.substr(l.href.indexOf("#")))) {
+            l.classList.add("selected"); 
+          } else {
+            l.classList.remove("selected"); 
+          }
+        }
+      }
+
+    }
+
+    customElements.define(SideNavbar.is, SideNavbar);
+  </script>
+</dom-module>
+

@@ -1,0 +1,139 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../css/style-module.html">
+<link rel="import" href="../elements/import.html">
+
+<dom-module id="earnings-table">
+  <template>
+    <style include="style-module">
+      :host * {
+        box-sizing: border-box;
+      }
+    </style>
+
+      <div class="row">
+        <div class="col-3">
+          <h3 class="earnings-big-values">{{totalQty(sales, filter)}}</h3>
+          <p>produtos vendidos {{formattedMonthName(filter)}}</p>
+        </div>
+        <div class="col-3">
+          <h3 class="earnings-big-values">R$ {{totalAmount(sales, filter)}}</h3>
+          <p>de faturamento {{formattedMonthName(filter)}}</p>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-3">
+          <select class="select select-primary pre-form-btn-left" id="select-month" on-change='didChangeFilter'>
+            <option value="-1" selected>Todos</option>
+            <option value="0">Janeiro</option>
+            <option value="1">Fevereiro</option>
+            <option value="2">Março</option>
+            <option value="3">Abril</option>
+            <option value="4">Maio</option>
+            <option value="5">Junho</option>
+            <option value="6">Julho</option>
+            <option value="7">Agosto</option>
+            <option value="8">Setembro</option>
+            <option value="9">Outubro</option>
+            <option value="10">Novembro</option>
+            <option value="11">Dezembro</option>
+          </select>
+        </div>
+        <div class="col-3">
+          <button class="btn btn-primary pre-form-btn-right btn-small">
+            <i class="fa fa-print fa-lg" aria-hidden="true"></i>&nbsp; Imprimir
+          </button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-6">
+          <table>
+            <thead>
+              <tr>
+              <th>Data/Hora</th>
+              <th>Nome do Produto</th>
+              <th>Valor individual</th>
+              <th>Quantidade</th>
+              <th>Valor total</th>
+              <th width="150px"></th>
+              </tr>
+            </thead>
+
+            <tbody>
+            <template is="dom-repeat" items="{{filteredSales(sales, filter)}}">
+              <tr data-id={{item.id}}>
+              <td>{{item.formattedDate}}</td>
+              <td>{{item.product.name}}</td>
+              <td>{{item.product.price}}</td>
+              <td>{{item.qty}}</td>
+              <td>{{item.formattedTotalPrice}}</td>
+              <td on-click='didPressRemove'><a class="sales-add-to-cart-link">Apagar<i class="fa fa-trash"></i></a></td>
+              </tr>
+            </template>
+            </tbody>
+          </table>
+      </div>
+    </div>
+
+  </template>
+  <script>
+    'use strict';
+
+    class EarningsTable extends Polymer.Element {
+      static get is() {
+        return "earnings-table";
+      }
+
+      static get properties() {
+        return {
+          sales: {
+            type: Array
+          },
+          filter: {
+            type: Number,
+            value: () => { return -1; }
+          }
+        }
+      }
+
+      totalAmount(sales) {
+        return Sale.totalAmountFromSumOfSales(this.filteredSales(sales)).toFixed(2);
+      }
+
+      totalQty(sales) {
+        return Sale.totalQtyFromSumOfSales(this.filteredSales(sales));
+      }
+
+      didChangeFilter(e) {
+        let select = e.target;
+        let selectedMonth = select.value;
+        this.filter = selectedMonth;
+      }
+
+      filteredSales(sales) {
+        if (this.filter == -1) {
+          return sales;
+        } else {
+          return sales.filter((s) => {
+            return s.datetime.getMonth() == this.filter;
+          });
+        }
+      }
+
+      formattedMonthName() {
+        if (this.filter == -1) {
+          return "em todo o ano";
+        } else {
+          let option = this.shadowRoot.querySelector('option[value=\'' + this.filter + '\']');
+          return "no mês de " + option.text;
+        }
+      }
+
+      didPressRemove(e) {
+        let model = e.model.item;
+        router.triggerActionForRoute('remove-sale', model, model.id)
+      }
+    }
+    customElements.define(EarningsTable.is, EarningsTable);
+  </script>
+</dom-module>

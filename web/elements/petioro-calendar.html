@@ -1,0 +1,225 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../css/style-module.html">
+<link rel="import" href="../elements/import.html">
+
+<dom-module id="petioro-calendar">
+  <template>
+    <style include="style-module">
+      :host * {
+        box-sizing: border-box;
+      }
+
+      .head-month-calendar {
+          background: #e05d6f;
+          height: 70px;
+          font-weight: bold;
+          font-size: 35px;
+          color: white;
+          border-top-left-radius: 7px;
+          border-top-right-radius: 7px;
+          border: 1px solid rgba(0,0,0,0.1);
+          border-bottom: none;
+      }
+
+      .head-month-calendar h2 {
+          display: inline;
+          font-weight: bold;
+          font-size: 35px;
+          color: white;
+      }
+
+      .header-container {
+        text-align: center;
+      }
+
+      .next-calendar-button {
+          text-align: right;
+      }
+
+      .head-calendar {
+          text-align: center;
+          background: #c98485;
+          border: 1px solid rgba(0,0,0,0.1);
+          border-bottom: none;
+          border-top: none;
+      }
+
+      .day-schedule {
+          text-align: left;
+      }
+
+      .day-schedule h3 {
+          font-weight: bold;
+          font-family: Lato;
+          /*line-height: 20px;*/
+          font-weight: 300;
+          font-size: 60px;
+          color: #555;
+          margin: 0 0 0 10px;
+      }
+
+      .schedules {
+          height: 50px;
+          border: solid 1px;
+          border-color: rgba(0,0,0,0.1);
+          padding-top: 15px;
+          padding-left: 20px;
+          color: #757575;
+          font-weight: bold;   
+      }
+
+      .calendar-with-hover .schedules:hover {
+          border-left: 5px solid rgba(0,0,0,0.1);
+          cursor: pointer;
+      }
+
+      .del-schedule{
+          /*float: right;*/
+          cursor: pointer;
+      }
+
+      .schedules:first-child {
+          border-radius: 5px 5px 0 0;
+      }
+
+      .schedules:last-child {
+          border-radius: 0 0 5px 5px;
+      }
+
+      .scheduled:nth-child(even) {
+          background-color: #B3A590;
+          color: #fff;
+      }
+
+      .scheduled:nth-child(odd) {
+          background-color: #BDB19E;
+          color: #fff;
+      }
+
+      .schedule-free:nth-child(even) {
+          background-color: #eee;
+      }
+
+      .schedule-free:nth-child(odd) {
+          background-color: #fafafa;
+      }
+
+      .border-days-calendar {
+          border: 1px solid rgba(0,0,0,0.1);
+          border-top: none;
+      }
+
+      .calendar-button {
+          padding: 3px;
+          font-size: 25px;
+          cursor: pointer;
+          border: none;
+          background-color: transparent;
+          color: #fff;
+      }
+
+      .border-days-calendar {
+        background-color: #fefefe;
+        border-bottom-right-radius: 7px;
+        border-bottom-left-radius: 7px;
+      }
+
+    </style>
+
+    <div class="row calendar-with-hover">
+      <div class="col-6">
+      <!-- ROW CONTAINER -->
+      <div class="row">
+        <!-- Row mês calendário-->
+        <div class="row head-month-calendar">
+          <div class="col-2 prev-calendar-button">
+            <button on-click="didClickPrevious" class="calendar-button"><i class="fa fa-chevron-left" aria-hidden="true"></i></button>
+          </div>
+          <div class="col-2 header-container"><h2 style="text-align: center">{{dailySummary.formattedMonth}}</h2></div>
+          <div class="col-2 next-calendar-button">
+            <button on-click="didClickNext" class="calendar-button"><i class="fa fa-chevron-right" aria-hidden="true"></i></button>
+          </div>
+        </div>
+
+        <!-- ROW Principal do Calendário: Dia e Horários -->
+        <div class="row head-calendar">
+          <div class="col-1">
+            <span style="color: #FFFFFF">DIA</span>
+          </div>
+          <div class="col-5">
+            <span style="color: #FFFFFF">HORÁRIOS</span>
+          </div>
+        </div>
+
+        <!-- ROW dia do Calendário -->
+        <div class="row border-days-calendar">
+          <div class="col-1 day-schedule"><h3>{{dailySummary.formattedDay}}</h3></div>
+          <div class="col-5">
+
+            <template is="dom-repeat" items="{{dailySummary.slots}}">
+
+              <template is="dom-if" if="{{!item.isScheduled}}">
+                <template is="dom-if" if="{{_isAdmin(admin)}}">
+                  <div class="row schedules schedule-free" onclick="location.href='#admin/events/new';">{{item.time}}</div>
+                </template>
+                <template is="dom-if" if="{{!_isAdmin(admin)}}">
+                  <div class="row schedules schedule-free">{{item.time}}</div>
+                </template>
+              </template>
+
+              <template is="dom-if" if="{{item.isScheduled}}">
+                <div class="row schedules scheduled">{{item.time}}
+                  <span class="itens-follow">{{item.event.pet.name}}</span>
+                  <span class="itens-follow">{{item.event.service.name}}</span>
+                  <span class="del-schedule itens-follow" on-click="didPressRemove"> Excluir<i class="fa fa-trash"></i></span>
+                </div>
+              </template>
+
+            </template>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </template>
+  <script>
+    'use strict';
+
+    class PetioroCalendar extends Polymer.Element {
+      static get is() {
+        return "petioro-calendar";
+      }
+
+      static get properties() {
+        return {
+          admin: {
+            type: Boolean,
+            value: false,
+          },
+          dailySummary: {
+            type: Object
+          }
+        }
+      }
+
+      didClickNext(e) {
+        location.href='#admin/calendar/' + this.dailySummary.nextDateID
+      }
+
+      didClickPrevious(e) {
+        location.href='#admin/calendar/' + this.dailySummary.previousDateID
+      }
+
+      didPressRemove(e) {
+        let model = e.model.item.event;
+        router.triggerActionForRoute('remove-event', model, model.id);
+      }
+
+      _isAdmin() {
+        return this.admin;
+      }
+    }
+    customElements.define(PetioroCalendar.is, PetioroCalendar);
+  </script>
+</dom-module>

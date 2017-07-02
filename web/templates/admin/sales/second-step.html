@@ -1,0 +1,20 @@
+<span slot="title">Vendas</span>
+<span slot="breadcrumbs"><a href="#admin/sales">Vendas</a> - Finalização</span>
+
+<cart-table></cart-table>
+
+<div class="row">
+  <div class="col-6">
+    <h2> Método de Pagamento </h2>
+  </div>
+</div>
+
+<petioro-payment></petioro-payment>
+
+<div class="row">
+  <div class="col-6">
+    <button class="btn btn-primary align-left" style="width:100%" onclick="(new Router()).triggerActionForRoute('close-admin-sale');">
+    <i class="fa fa-diamond fa-fw "></i> Finalizar Venda
+    </button>
+  </div>
+</div>

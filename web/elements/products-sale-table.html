@@ -1,0 +1,83 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../css/style-module.html">
+<link rel="import" href="../elements/import.html">
+
+<dom-module id="products-sale-table">
+  <template>
+    <style include="style-module">
+      :host * {
+        box-sizing: border-box;
+      }
+    </style>
+      <div class="row">
+        <div class="col-6">
+          <table>
+            <thead>
+              <tr>
+              <th>ID</th>
+              <th>Nome</th>
+              <th>Preço</th>
+              <th>Estoque</th>
+              <th>Carrinho</th>
+              </tr>
+            </thead>
+
+            <tbody>
+            <template is="dom-repeat" items="{{filtered(filter, products)}}">
+              <tr>
+              <td>{{item.id}}</td>
+              <td>{{item.name}}</td>
+              <td>{{item.price}}</td>
+              <td>{{item.qty}}</td>
+              <td on-click="addToCart"><a class="sales-add-to-cart-link">Adicionar<i class="fa fa-cart-plus"></i></a></td>
+              </tr>
+            </template>
+            </tbody>
+          </table>
+      </div>
+    </div>
+
+  </template>
+  <script>
+    'use strict';
+
+    class ProductsSaleTable extends Polymer.Element {
+      static get is() {
+        return "products-sale-table";
+      }
+
+      static get properties() {
+        return {
+          products: {
+            type: Array
+          },
+          filter: String
+        }
+      }
+
+      ready() {
+        super.ready();
+        document.addEventListener("did-search", (e) => {
+            this.filter = e.detail.query;
+        });
+      }
+
+      filtered() {
+        if (!this.filter) {
+          return this.products;
+        } else {
+          return this.products.filter((p) => {
+            return p.name.includes(this.filter);
+          })
+        }
+      }
+
+      addToCart(e) {
+        let product = e.model.item;
+        let router = new Router();
+        router.triggerActionForRoute('add-product-to-cart', product, product.id)
+      }
+    }
+    customElements.define(ProductsSaleTable.is, ProductsSaleTable);
+  </script>
+</dom-module>
